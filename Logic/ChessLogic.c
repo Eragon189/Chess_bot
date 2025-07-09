@@ -7,19 +7,21 @@
 #define FEN_LENGTH 256     // Maximum length of the FEN string
 
 //Defining all peaces as array in form  ["file","rank","","pic path"] 
+//white
 char WhiteKing[4] = ["0","0","WhiteKing","Recorces/White/LightKing.png"]
 char WhiteBishop[4] = ["0","0","WhiteBishop","Recorces/White/LightBishop.png"]
 char WhiteKnight[4] = ["0","0","WhiteKnight","Recorces/White/LightKnight.png"]
 char WhitePawn[4] = ["0","0","WhitePawn","Recorces/White/LightPawn.png"]
 char WhiteQueen[4] = ["0","0","WhiteQueen","Recorces/White/LightQueen.png"]
 char WhiteRook[4] = ["0","0","WhiteRook","Recorces/White/LightRook.png"]
+//black
 char BlackKing[4] = ["0","0","BlackKing","Recorces/Black/DarkKing.png"]
 char BlackBishop[4] = ["0","0","BlackKing","Recorces/Black/DarkBishop.png"]
 char BlackKnight[4] = ["0","0","BlackKnight","Recorces/Black/DarkKnight.png"]
 char BlackPawn[4] = ["0","0","BlackPawn","Recorces/Black/DarkPawn.png"]
 char BlackQueen[4] = ["0","0","BlackQueen","Recorces/Black/DarkQueen.png"]
 char BlackRook[4] = ["0","0","BlackRook","Recorces/Black/DarkRook.png"]
-
+//set up a variable to keep track of whose turn it is
 int whoseTurn = 0; // 0 for White, 1 for Black
 
 
@@ -28,9 +30,9 @@ void Import_File(){
 //Code to import A file with FEN strings
 //paces it in a 1D char array to store the values as strings
 const char *filename = "example.fen";
-    FILE *FEN = fopen(filename, "r");
+    FILE *FEN = fopen(filename, "r");//open the file in read mode
 
-    if (FEN == NULL) {
+    if (FEN == NULL) {//check if the file was opened successfully
         printf("Error opening file");
         return 1;
     }
@@ -157,15 +159,15 @@ WhiteKnight[0]=sprintf(file)
 WhiteKnight[1]=sprintf(rank)
 file++;
 
-}else if(nextWord == " "){ // Check for space to move to the next word
+}else if(nextWord == " "){ // Check for space to determine when the turn identifier is
     if (nextWord == "b") {
-        whoseTurn = 1; // Black
+        whoseTurn = 1; // set turn to Black
 }if else(nextWord == "w") {
-        whoseTurn = 0; // White
+        whoseTurn = 0; //set turn to White
 }
 } else {
     printf("Invalid character in FEN string: %c\n", nextWord);
-    exit(EXIT_FAILURE);
+    exit(EXIT_FAILURE);//exit the program if an invalid character is found
 
 }
 }
