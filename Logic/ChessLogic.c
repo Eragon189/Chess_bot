@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define MAX_FEN_STRINGS 10 // Maximum number of FEN strings to store
-#define FEN_LENGTH 256     // Maximum length of each FEN string
-// ChessLogic.c
+
+#define FEN_LENGTH 256     // Maximum length of the FEN string
+
 //Defining all peaces as array in form  ["file","rank","","pic path"] 
 char WhiteKing[4] = ["0","0","WhiteKing","Recorces/White/LightKing.png"]
 char WhiteBishop[4] = ["0","0","WhiteBishop","Recorces/White/LightBishop.png"]
@@ -20,51 +20,22 @@ char BlackPawn[4] = ["0","0","BlackPawn","Recorces/Black/DarkPawn.png"]
 char BlackQueen[4] = ["0","0","BlackQueen","Recorces/Black/DarkQueen.png"]
 char BlackRook[4] = ["0","0","BlackRook","Recorces/Black/DarkRook.png"]
 
+int whoseTurn = 0; // 0 for White, 1 for Black
+
 
 void Import_File(){
 
-//import file code here
+//Code to import A file with FEN strings
+//paces it in a 1D char array to store the values as strings
 const char *filename = "example.fen";
     FILE *FEN = fopen(filename, "r");
 
     if (FEN == NULL) {
-        perror("Error opening file");
+        printf("Error opening file");
         return 1;
     }
 
-    char fen[MAX_FEN_STRINGS][FEN_LENGTH];
-    int fen_count = 0; // Counter to track the number of FEN strings
 
-    // Reading each FEN string one by one
-    while (fgets(fen[fen_count], FEN_LENGTH, file) != NULL) {
-        // Remove the newline character if it exists
-        fen[fen_count][strcspn(fen[fen_count], "\n")] = '\0';
-
-        // Store the FEN string character by character in an array
-        char fen_chars[FEN_LENGTH];
-        int char_index = 0;
-
-        // Copy each character from the FEN string into the new array
-        for (int i = 0; i < FEN_LENGTH && fen[fen_count][i] != '\0'; i++) {
-            fen_chars[char_index] = fen[fen_count][i];
-            char_index++;
-        }
-
-        // Null-terminate the character array
-        fen_chars[char_index] = '\0';
-
-        // Increment the FEN count
-        fen_count++;
-
-        // If the maximum number of FEN strings is reached, stop reading further
-        if (fen_count >= MAX_FEN_STRINGS) {
-            printf("Maximum number of FEN strings reached.\n");
-            break;
-        }
-    }
-
-    fclose(file); // Close the file after reading
-    return 0;
 }
 
 
@@ -73,7 +44,25 @@ const char *filename = "example.fen";
 
 void letter_separator(){
 
-    //file braking code
+    char fen[FEN_LENGTH];       // Buffer to read the whole FEN string
+    char fen_chars[FEN_LENGTH]; // 1D array to store individual characters
+    int char_count = 0;         // Counter for characters
+
+    if (fgets(fen, sizeof(fen), file) != NULL) {
+        // Remove newline if present
+        fen[strcspn(fen, "\n")] = '\0';
+
+        // Copy each character into the 1D array
+        for (int i = 0; fen[i] != '\0'; i++) {
+            fen_chars[i] = fen[i];
+            char_count++;
+        }
+
+        // Optionally null-terminate the character array (if you treat it as a string)
+        fen_chars[char_count] = '\0';
+    }
+    fclose(FEN); // Close the file
+    return 0;
 
 
 }
@@ -82,15 +71,21 @@ void letter_separator(){
 void FEN_Translator(){
 int file = 0;
 int rank = 0;
+char nextWord; // Buffer to hold the next word from the FEN string
+for (int i = 0; i < FEN_LENGTH; i++) {
+    nextWord = fen_chars[i]; // Sent nextWord to the next character in the array
+//atoi() converts a string to an integer, so we can check if nextWord is a number
+if(atoi(nextWord) >= 1 && atoi(nextWord) <= 8){//check if nextWord is a number to move sideways x spaces
 
-if(nextWord > 0){//check if nextWord is a number to move sied spaces
     file=file+nextWord;
+
 }else if(nextWord = "/"){//check for slach to move to next rank
     file = 0;
     rank++;
-file = 0;
-rank++;
-}else if(nextWord == "k"){//check for each piece and assign it to the correct array
+
+//check for each piece and assign it to the correct array
+
+}else if(nextWord == "k"){
 
 BlackKing[0]=sprintf(file)
 BlackKing[1]=sprintf(rank)
@@ -162,5 +157,16 @@ WhiteKnight[0]=sprintf(file)
 WhiteKnight[1]=sprintf(rank)
 file++;
 
+}else if(nextWord == " "){ // Check for space to move to the next word
+    if (nextWord == "b") {
+        whoseTurn = 1; // Black
+}if else(nextWord == "w") {
+        whoseTurn = 0; // White
+}
+} else {
+    printf("Invalid character in FEN string: %c\n", nextWord);
+    exit(EXIT_FAILURE);
+
+}
 }
 }
