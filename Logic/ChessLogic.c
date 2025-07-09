@@ -7,14 +7,14 @@
 #define FEN_LENGTH 256     // Maximum length of the FEN string
 
 //Defining all peaces as array in form  ["file","rank","","pic path"] 
-//white
+//set up white peaces
 char WhiteKing[4] = ["0","0","WhiteKing","Recorces/White/LightKing.png"]
 char WhiteBishop[4] = ["0","0","WhiteBishop","Recorces/White/LightBishop.png"]
 char WhiteKnight[4] = ["0","0","WhiteKnight","Recorces/White/LightKnight.png"]
 char WhitePawn[4] = ["0","0","WhitePawn","Recorces/White/LightPawn.png"]
 char WhiteQueen[4] = ["0","0","WhiteQueen","Recorces/White/LightQueen.png"]
 char WhiteRook[4] = ["0","0","WhiteRook","Recorces/White/LightRook.png"]
-//black
+//set up black pecaes
 char BlackKing[4] = ["0","0","BlackKing","Recorces/Black/DarkKing.png"]
 char BlackBishop[4] = ["0","0","BlackKing","Recorces/Black/DarkBishop.png"]
 char BlackKnight[4] = ["0","0","BlackKnight","Recorces/Black/DarkKnight.png"]
@@ -40,10 +40,6 @@ const char *filename = "example.fen";
 
 }
 
-
-
-
-
 void letter_separator(){
 
     char fen[FEN_LENGTH];       // Buffer to read the whole FEN string
@@ -68,7 +64,6 @@ void letter_separator(){
 
 
 }
-
 
 void FEN_Translator(){
 int file = 0;
