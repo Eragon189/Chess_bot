@@ -145,7 +145,7 @@ int main() {
     if (result != 0) {
         printf("Error during FEN import and decompilation.\n");
         return result;
-    }else if (debug == 1) {
+    }if (debug == 1) {
         printf("%s White Rook-1\n", WhiteRook[1]);
         printf("%s White Rook-0\n", WhiteRook[0]);
         printf("%s White Bishop-0\n", WhiteBishop[0]);
