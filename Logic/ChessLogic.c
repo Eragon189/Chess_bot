@@ -5,30 +5,31 @@
 
 
 #define FEN_LENGTH 256     // Maximum length of the FEN string
-
+int debug = 0; // Debugging variable, set to 1 to enable debugging output
 //Defining all peaces as array in form  ["file","rank","","pic path"] 
 //set up white peaces
-char *WhiteKing[4] = {"0","0","WhiteKing","Recorces/White/LightKing.png"};
-char *WhiteBishop[4] = {"0","0","WhiteBishop","Recorces/White/LightBishop.png"};
-char *WhiteKnight[4] = {"0","0","WhiteKnight","Recorces/White/LightKnight.png"};
-char *WhitePawn[4] = {"0","0","WhitePawn","Recorces/White/LightPawn.png"};
-char *WhiteQueen[4] = {"0","0","WhiteQueen","Recorces/White/LightQueen.png"};
-char *WhiteRook[4] = {"0","0","WhiteRook","Recorces/White/LightRook.png"};
+char WhiteKing[4][32] = {"0","0","WhiteKing","Recorces/White/LightKing.png"};
+char WhiteBishop[4][32] = {"0","0","WhiteBishop","Recorces/White/LightBishop.png"};
+char WhiteKnight[4][32] = {"0","0","WhiteKnight","Recorces/White/LightKnight.png"};
+char WhitePawn[4][32] = {"0","0","WhitePawn","Recorces/White/LightPawn.png"};
+char WhiteQueen[4][32] = {"0","0","WhiteQueen","Recorces/White/LightQueen.png"};
+char WhiteRook[4][32] = {"0","0","WhiteRook","Recorces/White/LightRook.png"};
 //set up black pieces
-char *BlackKing[4] = {"0","0","BlackKing","Recorces/Black/DarkKing.png"};
-char *BlackBishop[4] = {"0","0","BlackBishop","Recorces/Black/DarkBishop.png"};
-char *BlackKnight[4] = {"0","0","BlackKnight","Recorces/Black/DarkKnight.png"};
-char *BlackPawn[4] = {"0","0","BlackPawn","Recorces/Black/DarkPawn.png"};
-char *BlackQueen[4] = {"0","0","BlackQueen","Recorces/Black/DarkQueen.png"};
-char *BlackRook[4] = {"0","0","BlackRook","Recorces/Black/DarkRook.png"};
+char BlackKing[4][32] = {"0","0","BlackKing","Recorces/Black/DarkKing.png"};
+char BlackBishop[4][32] = {"0","0","BlackBishop","Recorces/Black/DarkBishop.png"};
+char BlackKnight[4][32] = {"0","0","BlackKnight","Recorces/Black/DarkKnight.png"};
+char BlackPawn[4][32] = {"0","0","BlackPawn","Recorces/Black/DarkPawn.png"};
+char BlackQueen[4][32] = {"0","0","BlackQueen","Recorces/Black/DarkQueen.png"};
+char BlackRook[4][32] = {"0","0","BlackRook","Recorces/Black/DarkRook.png"};
 //set up a variable to keep track of whose turn it is
 int whoseTurn = 0; // 0 for White, 1 for Black
 
 
-int Import_File() {
+
+int ImportFileAndDecompile() {
     // Code to import a file with FEN strings
     // Places it in a 1D char array to store the values as strings
-    const char *filename = "example.fen";
+    const char *filename = "start.fen";
     FILE *FEN = fopen(filename, "r"); // open the file in read mode
 
     if (FEN == NULL) { // check if the file was opened successfully
@@ -53,11 +54,6 @@ int Import_File() {
     }   
     fclose(FEN); // Close the file
 
-    FEN_Translator(fen_chars);
-    return 0;
-}
-
-void FEN_Translator(char *fen_chars) {
     // Function to translate FEN string into piece positions
 
     int file = 0;
@@ -141,4 +137,43 @@ void FEN_Translator(char *fen_chars) {
             exit(EXIT_FAILURE); // exit the program if an invalid character is found
         }
     }
+}
+
+int main() {
+    // Call the function to import the FEN file and decompile it
+    int result = ImportFileAndDecompile();
+    if (result != 0) {
+        printf("Error during FEN import and decompilation.\n");
+        return result;
+    }else if (debug == 1) {
+        printf("%s White Rook-1\n", WhiteRook[1]);
+        printf("%s White Rook-0\n", WhiteRook[0]);
+        printf("%s White Bishop-0\n", WhiteBishop[0]);
+        printf("%s White Bishop-1\n", WhiteBishop[1]);
+        printf("%s White Knight-0\n", WhiteKnight[0]);
+        printf("%s White King-1\n", WhiteKing[1]);
+        printf("%s White Knight-1\n", WhiteKnight[1]); 
+        printf("%s White Queen-1\n", WhiteQueen[1]);
+        printf("%s White King-0\n", WhiteKing[0]);
+        printf("%s White Pawn-1\n", WhitePawn[1]);
+        printf("%s White Pawn-0\n", WhitePawn[0]);
+        printf("%s Black Rook-1\n", BlackRook[1]);
+        printf("%s Black Rook-0\n", BlackRook[0]);
+        printf("%s Black Knight-1\n", BlackKnight[1]);
+        printf("%s Black Knight-0\n", BlackKnight[0]);
+        printf("%s Black King-1\n", BlackKing[1]);
+        printf("%s Black King-0\n", BlackKing[0]);
+        printf("%s Black Queen-1\n", BlackQueen[1]);
+        printf("%s Black Queen-0\n", BlackQueen[0]);
+        printf("%s Black Pawn-1\n", BlackPawn[1]);
+        printf("%s Black Pawn-0\n", BlackPawn[0]);
+        printf("%s Black Bishop-0\n", BlackBishop[0]);
+        printf("%s Black Bishop-1\n", BlackBishop[1]);
+        printf("%s White Queen-0\n", WhiteQueen[0]);
+        printf("Whose turn: %s\n", whoseTurn == 0 ? "White" : "Black");
+    }else{
+        return 0;
+    }
+
+    
 }
