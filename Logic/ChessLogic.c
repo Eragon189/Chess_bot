@@ -8,7 +8,7 @@
 
 //Defining all peaces as array in form  ["file","rank","","pic path"] 
 //set up white peaces
-char *WhiteKing[4] = {"0", "0", "WhiteKing", "Recorces/White/LightKing.png"};
+char *WhiteKing[4] = {"0","0","WhiteKing","Recorces/White/LightKing.png"};
 char *WhiteBishop[4] = {"0","0","WhiteBishop","Recorces/White/LightBishop.png"};
 char *WhiteKnight[4] = {"0","0","WhiteKnight","Recorces/White/LightKnight.png"};
 char *WhitePawn[4] = {"0","0","WhitePawn","Recorces/White/LightPawn.png"};
@@ -21,18 +21,9 @@ char *BlackKnight[4] = {"0","0","BlackKnight","Recorces/Black/DarkKnight.png"};
 char *BlackPawn[4] = {"0","0","BlackPawn","Recorces/Black/DarkPawn.png"};
 char *BlackQueen[4] = {"0","0","BlackQueen","Recorces/Black/DarkQueen.png"};
 char *BlackRook[4] = {"0","0","BlackRook","Recorces/Black/DarkRook.png"};
-// Define a struct to represent a chess piece
-typedef struct {
-    int file;
-    int rank;
-    char name[16];
-    char imagePath[64];
-} ChessPiece;
+//set up a variable to keep track of whose turn it is
 int whoseTurn = 0; // 0 for White, 1 for Black
 
-
-// Declare fen_chars as a global variable
-char fen_chars[FEN_LENGTH]; // 1D array to store individual characters
 
 void Import_File(){
 
@@ -43,13 +34,19 @@ const char *filename = "example.fen";
 
     if (FEN == NULL) {//check if the file was opened successfully
         printf("Error opening file");
-        exit(EXIT_FAILURE); // Exit if the file cannot be opened
+        return 1;
     }
-//file
+
+
+}
+
+void letter_separator(){
+
     char fen[FEN_LENGTH];       // Buffer to read the whole FEN string
+    char fen_chars[FEN_LENGTH]; // 1D array to store individual characters
     int char_count = 0;         // Counter for characters
 
-    if (fgets(fen, sizeof(fen), FEN) != NULL) {
+    if (fgets(fen, sizeof(fen), file) != NULL) {
         // Remove newline if present
         fen[strcspn(fen, "\n")] = '\0';
 
@@ -68,14 +65,12 @@ const char *filename = "example.fen";
 
 }
 
-
-
 void FEN_Translator(){
 int file = 0;
 int rank = 0;
 char nextWord; // Buffer to hold the next word from the FEN string
-for (int i = 0; fen_chars[i] != '\0'; i++) {
-    nextWord = fen_chars[i]; // Get next character from the FEN string
+for (int i = 0; i < FEN_LENGTH; i++) {
+    nextWord = fen_chars[i]; // Sent nextWord to the next character in the array
 //atoi() converts a string to an integer, so we can check if nextWord is a number
 if(atoi(nextWord) >= 1 && atoi(nextWord) <= 8){//check if nextWord is a number to move sideways x spaces
 
