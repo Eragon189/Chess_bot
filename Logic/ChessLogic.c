@@ -25,28 +25,22 @@ char *BlackRook[4] = {"0","0","BlackRook","Recorces/Black/DarkRook.png"};
 int whoseTurn = 0; // 0 for White, 1 for Black
 
 
-void Import_File(){
+int Import_File() {
+    // Code to import a file with FEN strings
+    // Places it in a 1D char array to store the values as strings
+    const char *filename = "example.fen";
+    FILE *FEN = fopen(filename, "r"); // open the file in read mode
 
-//Code to import A file with FEN strings
-//paces it in a 1D char array to store the values as strings
-const char *filename = "example.fen";
-    FILE *FEN = fopen(filename, "r");//open the file in read mode
-
-    if (FEN == NULL) {//check if the file was opened successfully
-        printf("Error opening file");
+    if (FEN == NULL) { // check if the file was opened successfully
+        printf("Error opening file\n");
         return 1;
     }
-
-
-}
-
-void letter_separator(){
 
     char fen[FEN_LENGTH];       // Buffer to read the whole FEN string
     char fen_chars[FEN_LENGTH]; // 1D array to store individual characters
     int char_count = 0;         // Counter for characters
 
-    if (fgets(fen, sizeof(fen), file) != NULL) {
+    if (fgets(fen, sizeof(fen), FEN) != NULL) {
         // Remove newline if present
         fen[strcspn(fen, "\n")] = '\0';
 
@@ -55,116 +49,96 @@ void letter_separator(){
             fen_chars[i] = fen[i];
             char_count++;
         }
-
-        // Optionally null-terminate the character array (if you treat it as a string)
-        fen_chars[char_count] = '\0';
-    }
+        fen_chars[char_count] = '\0'; // Null-terminate the character array
+    }   
     fclose(FEN); // Close the file
+
+    FEN_Translator(fen_chars);
     return 0;
-
-
 }
 
-void FEN_Translator(){
-int file = 0;
-int rank = 0;
-char nextWord; // Buffer to hold the next word from the FEN string
-for (int i = 0; i < FEN_LENGTH; i++) {
-    nextWord = fen_chars[i]; // Sent nextWord to the next character in the array
-//atoi() converts a string to an integer, so we can check if nextWord is a number
-if(atoi(nextWord) >= 1 && atoi(nextWord) <= 8){//check if nextWord is a number to move sideways x spaces
+void FEN_Translator(char *fen_chars) {
+    // Function to translate FEN string into piece positions
 
-    file=file+nextWord;
+    int file = 0;
+    int rank = 0;
+    char nextChar;
 
-}else if(nextWord = "/"){//check for slach to move to next rank
-    file = 0;
-    rank++;
+    for (int i = 0; i < FEN_LENGTH && fen_chars[i] != '\0'; i++) {
+        nextChar = fen_chars[i];
 
-//check for each piece and assign it to the correct array
-
-}else if(nextWord == "k"){
-
-sprintf(BlackKing[0], "%d", file); // Set the file position
-sprintf(BlackKing[1], "%d", rank); // Set the rank position
-file++;
-
-}else if(nextWord == "K"){
-
-sprintf(WhiteKing[0], "%d", file); // Set the file position 
-sprintf(WhiteKing[1], "%d", rank); // Set the rank position
-file++;
-
-}else if(nextWord == "b"){
-
-sprintf(BlackBishop[0], "%d", file); // Set the file position
-sprintf(BlackBishop[1], "%d", rank); // Set the rank position
-
-    file++;
-
-}else if(nextWord == "B"){
-
-sprintf(WhiteBishop[0], "%d", file); // Set the file position
-sprintf(WhiteBishop[1], "%d", rank); // Set the rank position
-file++;
-
-}else if(nextWord == "q"){
-
-    sprintf(BlackQueen[0], "%d", file); // Set the file position
-    sprintf(BlackQueen[1], "%d", rank); // Set the rank position
-file++;
-
-}else if(nextWord == "Q"){
-
-sprintf(WhiteQueen[0], "%d", file); // Set the file position
-sprintf(WhiteQueen[1], "%d", rank); // Set the rank position
-file++;
-
-}else if(nextWord == "p"){
-
-sprintf(BlackPawn[0], "%d", file); // Set the file position
-sprintf(BlackPawn[1], "%d", rank); // Set the rank position
-file++;
-
-}else if(nextWord == "P"){
-
-sprintf(WhitePawn[0], "%d", file); // Set the file position
-sprintf(WhitePawn[1], "%d", rank); // Set the rank position
-file++;
-
-}else if(nextWord == "r"){
-
-sprintf(BlackRook[0], "%d", file); // Set the file position
-sprintf(BlackRook[1], "%d", rank); // Set the rank position
-file++;
-
-}else if(nextWord == "R"){
-
-sprintf(WhiteRook[0], "%d", file); // Set the file position
-sprintf(WhiteRook[1], "%d", rank); // Set the rank position
-file++;
-
-}else if(nextWord == "n"){
-
- sprintf(BlackKnight[0], "%d", file); // Set the file position
- sprintf(BlackKnight[1], "%d", rank); // Set the rank position
-file++;
-
-}else if(nextWord == "N"){
-
-sprintf(WhiteKnight[0], "%d", file); // Set the file position
-sprintf(WhiteKnight[1], "%d", rank); // Set the rank position
-file++;
-
-}else if(nextWord == " "){ // Check for space to determine when the turn identifier is
-    if (nextWord == "b") {
-        whoseTurn = 1; // set turn to Black
-}if else(nextWord == "w") {
-        whoseTurn = 0; //set turn to White
-}
-} else {
-    printf("Invalid character in FEN string: %c\n", nextWord);
-    exit(EXIT_FAILURE);//exit the program if an invalid character is found
-
-}
-}
+        // Check if nextChar is a number to move sideways x spaces
+        if (nextChar >= '1' && nextChar <= '8') {
+            file += (nextChar - '0');
+        }
+        // Check for slash to move to next rank
+        else if (nextChar == '/') {
+            file = 0;
+            rank++;
+        }
+        // Check for each piece and assign it to the correct array
+        else if (nextChar == 'k') {
+            sprintf(BlackKing[0], "%d", file);
+            sprintf(BlackKing[1], "%d", rank);
+            file++;
+        } else if (nextChar == 'K') {
+            sprintf(WhiteKing[0], "%d", file);
+            sprintf(WhiteKing[1], "%d", rank);
+            file++;
+        } else if (nextChar == 'b') {
+            sprintf(BlackBishop[0], "%d", file);
+            sprintf(BlackBishop[1], "%d", rank);
+            file++;
+        } else if (nextChar == 'B') {
+            sprintf(WhiteBishop[0], "%d", file);
+            sprintf(WhiteBishop[1], "%d", rank);
+            file++;
+        } else if (nextChar == 'q') {
+            sprintf(BlackQueen[0], "%d", file);
+            sprintf(BlackQueen[1], "%d", rank);
+            file++;
+        } else if (nextChar == 'Q') {
+            sprintf(WhiteQueen[0], "%d", file);
+            sprintf(WhiteQueen[1], "%d", rank);
+            file++;
+        } else if (nextChar == 'p') {
+            sprintf(BlackPawn[0], "%d", file);
+            sprintf(BlackPawn[1], "%d", rank);
+            file++;
+        } else if (nextChar == 'P') {
+            sprintf(WhitePawn[0], "%d", file);
+            sprintf(WhitePawn[1], "%d", rank);
+            file++;
+        } else if (nextChar == 'r') {
+            sprintf(BlackRook[0], "%d", file);
+            sprintf(BlackRook[1], "%d", rank);
+            file++;
+        } else if (nextChar == 'R') {
+            sprintf(WhiteRook[0], "%d", file);
+            sprintf(WhiteRook[1], "%d", rank);
+            file++;
+        } else if (nextChar == 'n') {
+            sprintf(BlackKnight[0], "%d", file);
+            sprintf(BlackKnight[1], "%d", rank);
+            file++;
+        } else if (nextChar == 'N') {
+            sprintf(WhiteKnight[0], "%d", file);
+            sprintf(WhiteKnight[1], "%d", rank);
+            file++;
+        }
+        // Check for space to determine when the turn identifier is
+        else if (nextChar == ' ') {
+            // Next character should be 'w' or 'b'
+            if (fen_chars[i + 1] == 'b') {
+                whoseTurn = 1; // set turn to Black
+            } else if (fen_chars[i + 1] == 'w') {
+                whoseTurn = 0; // set turn to White
+            }
+            break; // End parsing after turn info
+        }
+        else {
+            printf("Invalid character in FEN string: %c\n", nextChar);
+            exit(EXIT_FAILURE); // exit the program if an invalid character is found
+        }
+    }
 }
