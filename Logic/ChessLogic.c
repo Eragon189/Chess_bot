@@ -84,74 +84,75 @@ if(atoi(nextWord) >= 1 && atoi(nextWord) <= 8){//check if nextWord is a number t
 
 }else if(nextWord == "k"){
 
-BlackKing[0]=sprintf(file)
-BlackKing[1]=sprintf(rank)
+sprintf(BlackKing[0], "%d", file); // Set the file position
+sprintf(BlackKing[1], "%d", rank); // Set the rank position
 file++;
 
 }else if(nextWord == "K"){
 
-WhiteKing[0]=sprintf(file)
-WhiteKing[1]=sprintf(rank)
+sprintf(WhiteKing[0], "%d", file); // Set the file position 
+sprintf(WhiteKing[1], "%d", rank); // Set the rank position
 file++;
 
 }else if(nextWord == "b"){
 
-BlackBishop[0]=sprintf(file)
-BlackBishop[1]=sprintf(rank)
-file++;
+sprintf(BlackBishop[0], "%d", file); // Set the file position
+sprintf(BlackBishop[1], "%d", rank); // Set the rank position
+
+    file++;
 
 }else if(nextWord == "B"){
 
-WhiteBishop[0]=sprintf(file)
-WhiteBishop[1]=sprintf(rank)
+sprintf(WhiteBishop[0], "%d", file); // Set the file position
+sprintf(WhiteBishop[1], "%d", rank); // Set the rank position
 file++;
 
 }else if(nextWord == "q"){
 
-BlackQueen[0]=sprintf(file)
-BlackQueen[1]=sprintf(rank)
+    sprintf(BlackQueen[0], "%d", file); // Set the file position
+    sprintf(BlackQueen[1], "%d", rank); // Set the rank position
 file++;
 
 }else if(nextWord == "Q"){
 
-WhiteQueen[0]=sprintf(file)
-WhiteQueen[1]=sprintf(rank)
+sprintf(WhiteQueen[0], "%d", file); // Set the file position
+sprintf(WhiteQueen[1], "%d", rank); // Set the rank position
 file++;
 
 }else if(nextWord == "p"){
 
-BlackPawn[0]=sprintf(file)
-BlackPawn[1]=sprintf(rank)
+sprintf(BlackPawn[0], "%d", file); // Set the file position
+sprintf(BlackPawn[1], "%d", rank); // Set the rank position
 file++;
 
 }else if(nextWord == "P"){
 
-WhitePawn[0]=sprintf(file)
-WhitePawn[1]=sprintf(rank)
+sprintf(WhitePawn[0], "%d", file); // Set the file position
+sprintf(WhitePawn[1], "%d", rank); // Set the rank position
 file++;
 
 }else if(nextWord == "r"){
 
-BlackRook[0]=sprintf(file)
-BlackRook[1]=sprintf(rank)
+sprintf(BlackRook[0], "%d", file); // Set the file position
+sprintf(BlackRook[1], "%d", rank); // Set the rank position
 file++;
 
 }else if(nextWord == "R"){
 
-WhiteRook[0]=sprintf(file)
-WhiteRook[1]=sprintf(rank)
+sprintf(WhiteRook[0], "%d", file); // Set the file position
+sprintf(WhiteRook[1], "%d", rank); // Set the rank position
 file++;
 
 }else if(nextWord == "n"){
 
-BlackKnight[0]=sprintf(file)
-BlackKnight[1]=sprintf(rank)
+ sprintf(BlackKnight[0], "%d", file); // Set the file position
+ sprintf(BlackKnight[1], "%d", rank); // Set the rank position
 file++;
 
 }else if(nextWord == "N"){
 
-WhiteKnight[0]=sprintf(file)
-WhiteKnight[1]=sprintf(rank)
+sprintf(WhiteKnight[0], "%d", file); // Set the file position
+sprintf(WhiteKnight[1], "%d", rank); // Set the rank position
 file++;
 
 }else if(nextWord == " "){ // Check for space to determine when the turn identifier is
