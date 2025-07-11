@@ -25,8 +25,11 @@ char BlackRook[4][32] = {"0","0","BlackRook","Recorces/Black/DarkRook.png"};
 //set up a variable to keep track of whose turn it is
 int whoseTurn = 0; // 0 for White, 1 for Black
 
-
-
+// Define the knight move spaces for White Knight
+int WhiteKnightMoveSpaces[8][2] = {{-2, -1}, {-1, -2}, {1, -2}, {2, -1}, {2, 1}, {1, 2}, {-1, 2}, {-2, 1}};
+int BlackKnightMoveSpaces[8][2] = {{-2, -1}, {-1, -2}, {1, -2}, {2, -1}, {2, 1}, {1, 2}, {-1, 2}, {-2, 1}};
+int WhiteBishopMoveSpaces[15][2] = {{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
+int BlackBishopMoveSpaces[15][2] = {{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
 int ImportFileAndDecompile() {
     // Code to import a file with FEN strings
     // Places it in a 1D char array to store the values as strings
