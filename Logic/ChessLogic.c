@@ -6,6 +6,7 @@
 
 #define FEN_LENGTH 256     // Maximum length of the FEN string
 int debug = 0; // Debugging variable, set to 1 to enable debugging output
+char *fileName = "start.fen"; // FEN file name
 //Defining all peaces as array in form  ["file","rank","","pic path"] 
 //set up white peaces
 char WhiteKing[4][32] = {"0","0","WhiteKing","Recorces/White/LightKing.png"};
@@ -29,7 +30,7 @@ int whoseTurn = 0; // 0 for White, 1 for Black
 int ImportFileAndDecompile() {
     // Code to import a file with FEN strings
     // Places it in a 1D char array to store the values as strings
-    const char *filename = "start.fen";
+    const char *filename = fileName;
     FILE *FEN = fopen(filename, "r"); // open the file in read mode
 
     if (FEN == NULL) { // check if the file was opened successfully
@@ -145,7 +146,10 @@ int main() {
     if (result != 0) {
         printf("Error during FEN import and decompilation.\n");
         return result;
-    }if (debug == 1) {
+        // Exit if there was an error
+    }
+    if (debug == 1) {// Debugging output
+        printf("Debugging output:\n");
         printf("%s White Rook-1\n", WhiteRook[1]);
         printf("%s White Rook-0\n", WhiteRook[0]);
         printf("%s White Bishop-0\n", WhiteBishop[0]);
