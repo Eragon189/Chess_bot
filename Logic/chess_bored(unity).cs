@@ -4,6 +4,7 @@
 
 using System;
 using System.IO;
+using UnityEngine;
 
 class ChessBoard
 {
@@ -105,5 +106,23 @@ class ChessBoard
         fen += " - - 0 1"; // placeholder: no castling, en passant, half/full move count
 
         Console.WriteLine("FEN: " + fen);
+    }
+    ChessBoard ChessCall = new ChessBoard();
+}
+
+
+
+public class MainScript : MonoBehaviour
+{
+    // Called once when the script instance is being loaded (just before the first frame update)
+    void Start()
+    {
+        ChessCall.Call();
+    }
+
+    // Called once per frame
+    void Update()
+    {
+        ChessCall.Call();
     }
 }
