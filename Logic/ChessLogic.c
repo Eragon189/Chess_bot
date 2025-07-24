@@ -1,291 +1,299 @@
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
-#include <stdbool.h>
+#include <limits.h>
+#include <string.h>
+#include <ctype.h>
 
+#define MAX_DEPTH       4
+#define INF             1000000
+#define MATE_SCORE      100000
 
-#define FEN_LENGTH 256     // Maximum length of the FEN string
-int debug = 0; // Debugging variable, set to 1 to enable debugging output
-char *fileName = "start.fen"; // FEN file name
-//Defining all peaces as array in form  {"file","rank","index","id","pic path"}
-//set up white peaces
-int WhiteSquares[8][8] = {//white = 0,black = 1
-    //format [rank],[file]
-    {0, 1, 0, 1, 0, 1, 0, 1},
-    {1, 0, 1, 0, 1, 0, 1, 0},
-    {0, 1, 0, 1, 0, 1, 0, 1},
-    {1, 0, 1, 0, 1, 0, 1, 0},
-    {0, 1, 0, 1, 0, 1, 0, 1},
-    {1, 0, 1, 0, 1, 0, 1, 0},
-    {0, 1, 0, 1, 0, 1, 0, 1},
-    {1, 0, 1, 0, 1, 0, 1, 0}
-};
-char WhiteKing[1][4][32] = {
-    {"0","0","WhiteKing","Recorces/White/LightKing.png"}
-};
-char WhiteBishops[2][4][32] = {
-    { "0", "0", "White_BlackSquare_Bishop", "Recorces/White/LightBishop.png" },
-    { "0", "0", "White_WhiteSquare_Bishop", "Recorces/White/LightBishop.png" }
-};
-char WhiteKnights[2][4][32] = {
-    // {"file","rank","index","id","pic path"}
-    {"0","0","0","WhiteKnight1","Recorces/White/LightKnight.png"},
-    {"0","0","1","WhiteKnight2","Recorces/White/LightKnight.png"}
-};
-char WhitePawns[8][4][32] = {
-    // {"file","rank","index","id","pic path"}
-    {"0","0","0","WhitePawn1","Recorces/White/LightPawn.png"},
-    {"0","0","1","WhitePawn2","Recorces/White/LightPawn.png"},
-    {"0","0","2","WhitePawn4","Recorces/White/LightPawn.png"},
-    {"0","0","3","WhitePawn3","Recorces/White/LightPawn.png"},
-    {"0","0","4","WhitePawn5","Recorces/White/LightPawn.png"},
-    {"0","0","5","WhitePawn6","Recorces/White/LightPawn.png"},
-    {"0","0","6","WhitePawn7","Recorces/White/LightPawn.png"},
-    {"0","0","7","WhitePawn8","Recorces/White/LightPawn.png"}
-};
-char WhiteQueen[1][4][32] = {
-    {"0","0","WhiteQueen","Recorces/White/LightQueen.png"}
-};
-char WhiteRooks[2][4][32] = {
-    // {"file","rank","index","id","pic path"}
-    {"0","0","0","WhiteRook1","Recorces/White/LightRook.png"},
-    {"0","0","1","WhiteRook2","Recorces/White/LightRook.png"}
+typedef struct {
+    int from_x, from_y, to_x, to_y;
+    char promotion;
+    int score;  // for heuristic sorting
+} Move;
+
+char board[8][8] = {
+    {'r','n','b','q','k','b','n','r'},
+    {'p','p','p','p','p','p','p','p'},
+    {' ',' ',' ',' ',' ',' ',' ',' '},
+    {' ',' ',' ',' ',' ',' ',' ',' '},
+    {' ',' ',' ',' ',' ',' ',' ',' '},
+    {' ',' ',' ',' ',' ',' ',' ',' '},
+    {'P','P','P','P','P','P','P','P'},
+    {'R','N','B','Q','K','B','N','R'}
 };
 
-//set up black pieces
-char BlackKing[1][4][32] = {
-    {"0","0","BlackKing","Recorces/Black/DarkKing.png"}
-};
-char BlackBishops[2][4][32] = {
-    {"0","0","Black_BlackSquare_Bishop","Recorces/Black/DarkBishop.png"},
-    {"0","0","Black_WhiteSquare_Bishop","Recorces/Black/DarkBishop.png"}
-};
-char BlackKnights[2][4][32] = {
-    // {"file","rank","index","id","pic path"}
-    {"0","0","0","BlackKnight1","Recorces/Black/DarkKnight.png"},
-    {"0","0","1","BlackKnight2","Recorces/Black/DarkKnight.png"}
-};
-char BlackPawns[8][4][32] = {
-    // {"file","rank","index","id","pic path"}
-    {"0","0","0","BlackPawn1","Recorces/Black/DarkPawn.png"},
-    {"0","0","1","BlackPawn2","Recorces/Black/DarkPawn.png"},
-    {"0","0","2","BlackPawn3","Recorces/Black/DarkPawn.png"},
-    {"0","0","3","BlackPawn4","Recorces/Black/DarkPawn.png"},
-    {"0","0","4","BlackPawn5","Recorces/Black/DarkPawn.png"},
-    {"0","0","5","BlackPawn6","Recorces/Black/DarkPawn.png"},
-    {"0","0","6","BlackPawn7","Recorces/Black/DarkPawn.png"},
-    {"0","0","7","BlackPawn8","Recorces/Black/DarkPawn.png"}
-};
-char BlackQueen[1][4][32] = {
-    {"0","0","BlackQueen","Recorces/Black/DarkQueen.png"}
-};
-char BlackRooks[2][4][32] = {
-    // {"file","rank","index","id","pic path"}
-    {"0","0","0","BlackRook1","Recorces/Black/DarkRook.png"},
-    {"0","0","1","BlackRook2","Recorces/Black/DarkRook.png"}
-};
-//set up a variable to keep track of whose turn it is
-int whoseTurn = 0; // 0 for White, 1 for Black
+int isUpper(char c){return c>='A'&&c<='Z';}
+int isLower(char c){return c>='a'&&c<='z';}
+int sideToMove = 1; // 1 = white, 0 = black
 
-// Define the move spaces for all pieces in {file, rank} format
-int WhiteKnightPossibleMoveCombos[8][2] = {{-2, -1}, {-1, -2}, {1, -2}, {2, -1}, {2, 1}, {1, 2}, {-1, 2}, {-2, 1}};
-int BlackKnightPossibleMoveCombos[8][2] = {{-2, -1}, {-1, -2}, {1, -2}, {2, -1}, {2, 1}, {1, 2}, {-1, 2}, {-2, 1}};
-int WhiteBishopPossibleMoveCombos[15][2] = {{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
-int BlackBishopPossibleMoveCombos[15][2] = {{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
-int WhiteRookPossibleMoveCombos[14][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-int BlackRookPossibleMoveCombos[14][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-int WhiteQueenPossibleMoveCombos[15][2] = {{-1, -1}, {-1, 1}, {1, -1}, {1, 1}, {-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-int BlackQueenPossibleMoveCombos[15][2] = {{-1, -1}, {-1, 1}, {1, -1}, {1, 1}, {-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-int WhiteKingPossibleMoveCombos[8][2] = {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
-int BlackKingPossibleMoveCombos[8][2] = {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
-int WhitePawnPossibleMoveCombos[4][2] = {{0, 1}, {0, 2}, {-1, 1}, {1, 1}}; // Normal move, double move, and captures
-int BlackPawnPossibleMoveCombos[4][2] = {{0, -1}, {0, -2}, {-1, -1}, {1, -1}}; // Normal move, double move, and captures
+// piece values
+int pieceVal[128];
+void initValues(){
+    pieceVal['P']=100; pieceVal['N']=320; pieceVal['B']=330;
+    pieceVal['R']=500; pieceVal['Q']=900; pieceVal['K']=20000;
+    pieceVal['p']=-100; pieceVal['n']=-320; pieceVal['b']=-330;
+    pieceVal['r']=-500; pieceVal['q']=-900; pieceVal['k']=-20000;
+}
 
-int ImportFileAndDecompile() {
-    // Code to import a file with FEN strings
-    // Places it in a 1D char array to store the values as strings
-    const char *filename = fileName;
-    FILE *FEN = fopen(filename, "r"); // open the file in read mode
-
-    if (FEN == NULL) { // check if the file was opened successfully
-        printf("Error opening file\n");
-        return 1;
+// board evaluation
+int evaluate(){
+    int s=0;
+    for(int i=0;i<8;i++)for(int j=0;j<8;j++){
+        s += pieceVal[(int)board[i][j]];
     }
+    return s * (sideToMove?1:-1);
+}
 
-    char fen[FEN_LENGTH];       // Buffer to read the whole FEN string
-    char fen_chars[FEN_LENGTH]; // 1D array to store individual characters
-    int char_count = 0;         // Counter for characters
-
-    if (fgets(fen, sizeof(fen), FEN) != NULL) {
-        // Remove newline if present
-        fen[strcspn(fen, "\n")] = '\0';
-
-        // Copy each character into the 1D array
-        for (int i = 0; fen[i] != '\0'; i++) {
-            fen_chars[i] = fen[i];
-            char_count++;
-        }
-        fen_chars[char_count] = '\0'; // Null-terminate the character array
-    }   
-    fclose(FEN); // Close the file
-
-    // Function to translate FEN string into piece positions
-
-    int file = 0;
-    int rank = 0;
-    char nextChar;
-
-        int blackPawnIndex = 0;
-        int whitePawnIndex = 0;
-        int blackKnightIndex = 0;
-        int whiteKnightIndex = 0;
-        int blackRookIndex = 0;
-        int whiteRookIndex = 0;
-    for (int i = 0; i < FEN_LENGTH && fen_chars[i] != '\0'; i++) {
-        nextChar = fen_chars[i];
-
-        // Check if nextChar is a number to move sideways x spaces
-        if (nextChar >= '1' && nextChar <= '8') {
-            file += (nextChar - '0');
-        }
-        // Check for slash to move to next rank
-        else if (nextChar == '/') {
-            file = 0;
-            rank++;
-        }
-        // Check for each piece and assign it to the correct array
-        else if (nextChar == 'k') {
-            sprintf(BlackKing[0][0], "%d", file);
-            sprintf(BlackKing[0][1], "%d", rank);
-            file++;
-        } else if (nextChar == 'K') {
-            sprintf(WhiteKing[0][0], "%d", file);
-            sprintf(WhiteKing[0][1], "%d", rank);
-            file++;
-        } else if (nextChar == 'b') {
-
-            if (WhiteSquares[rank][file] == 1) {//check if the square is white or black
-                //set the bishop to the correct square
-                sprintf(BlackBishops[0][0], "%d", file);
-                sprintf(BlackBishops[0][1], "%d", rank);
-            }else {
-                sprintf(BlackBishops[1][0], "%d", file);
-                sprintf(BlackBishops[1][1], "%d", rank);
-            }
-            file++;
-        } else if (nextChar == 'B') {
-            if( WhiteSquares[rank][file] == 1) {//check if the square is white or black
-                //set the bishop to the correct square(white)
-                sprintf(WhiteBishops[0][0], "%d", file);
-                sprintf(WhiteBishops[0][1], "%d", rank);
-            }else {
-                //set the bishop to the correct square(black)
-                sprintf(WhiteBishops[1][0], "%d", file);
-                sprintf(WhiteBishops[1][1], "%d", rank);
-            }
-            file++;
-        } else if (nextChar == 'q') {
-            sprintf(BlackQueen[0][0], "%d", file);
-            sprintf(BlackQueen[0][1], "%d", rank);
-            file++;
-        } else if (nextChar == 'Q') {
-            sprintf(WhiteQueen[0][0], "%d", file);
-            sprintf(WhiteQueen[0][1], "%d", rank);
-            file++;
-        } else if (nextChar == 'p') {
-            // format{file, rank, index, id, pic path}
-            sprintf(BlackPawns[blackPawnIndex][0], "%d", file);
-            sprintf(BlackPawns[blackPawnIndex][1], "%d", rank);
-            file++;
-            blackPawnIndex++;
-        } else if (nextChar == 'P') {
-            sprintf(WhitePawns[whitePawnIndex][0], "%d", file);
-            sprintf(WhitePawns[whitePawnIndex][1], "%d", rank);
-            file++;
-            whitePawnIndex++;
-        } else if (nextChar == 'r') {
-            sprintf(BlackRooks[blackRookIndex][0], "%d", file);
-            sprintf(BlackRooks[blackRookIndex][1], "%d", rank);
-            file++;
-            blackRookIndex++;
-        } else if (nextChar == 'R') {
-            sprintf(WhiteRooks[whiteRookIndex][0], "%d", file);
-            sprintf(WhiteRooks[whiteRookIndex][1], "%d", rank);
-            file++;
-            whiteRookIndex++;
-        } else if (nextChar == 'n') {
-            sprintf(BlackKnights[blackKnightIndex][0], "%d", file);
-            sprintf(BlackKnights[blackKnightIndex][1], "%d", rank);
-            file++;
-            blackKnightIndex++;
-        } else if (nextChar == 'N') {
-            sprintf(WhiteKnights[whiteKnightIndex][0], "%d", file);
-            sprintf(WhiteKnights[whiteKnightIndex][1], "%d", rank);
-            file++;
-            whiteKnightIndex++;
-        }
-        // Check for space to determine when the turn identifier is
-        else if (nextChar == ' ') {
-            // Next character should be 'w' or 'b'
-            if (fen_chars[i + 1] == 'b') {
-                whoseTurn = 1; // set turn to Black
-            } else if (fen_chars[i + 1] == 'w') {
-                whoseTurn = 0; // set turn to White
-            }
-            break; // End parsing after turn info
-        }
-        else {
-            printf("Invalid character in FEN string: %c\n", nextChar);
-            exit(EXIT_FAILURE); // exit the program if an invalid character is found
-        }
+// find king
+void findKing(int isWhite,int *kx,int *ky){
+    char k = isWhite? 'K':'k';
+    for(int i=0;i<8;i++)for(int j=0;j<8;j++){
+        if(board[i][j]==k){*kx=i;*ky=j;return;}
     }
 }
 
+// check if square attacked by opponent
+// directions for sliding pieces: rook, bishop, queen
+const int dirs[8][2] = {{1,0},{-1,0},{0,1},{0,-1},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-int minimax(){
-
-
-    //placeholder for minimax function
+int attacked(int x,int y,int byWhite){
+    int dx,dy,i,j;
+    // pawn attacks
+    int dir = byWhite ? -1 : +1;
+    for(int dd=-1;dd<=1;dd+=2){
+        i = x+dir; j = y+dd;
+        if(i>=0&&i<8&&j>=0&&j<8){
+            if(board[i][j] == (byWhite?'P':'p')) return 1;
+        }
+    }
+    // knight
+    int kx[8]={-2,-2,-1,-1,1,1,2,2}, ky[8]={-1,1,-2,2,-2,2,-1,1};
+    for(int k=0;k<8;k++){
+        i=x+kx[k]; j=y+ky[k];
+        if(i>=0&&i<8&&j>=0&&j<8 &&
+           board[i][j] == (byWhite?'N':'n')) return 1;
+    }
+    // sliding pieces: bishops / queens
+    for(int d=0;d<8;d++){
+        dx=dirs[d][0]; dy=dirs[d][1];
+        for(i=x+dx,j=y+dy;i>=0&&i<8&&j>=0&&j<8;i+=dx,j+=dy){
+            char c = board[i][j];
+            if(c==' ') continue;
+            if(isUpper(c)==byWhite){
+                if((d<4 && (c=='R'||c=='Q')) ||
+                   (d>=4 && (c=='B'||c=='Q'))) return 1;
+            }
+            break;
+        }
+    }
+    // kings
+    for(dx=-1;dx<=1;dx++)for(dy=-1;dy<=1;dy++){
+        if(dx==0&&dy==0) continue;
+        i=x+dx;j=y+dy;
+        if(i>=0&&i<8&&j>=0&&j<8 && board[i][j]==(byWhite?'K':'k')) return 1;
+    }
+    return 0;
 }
 
-int main() {
-    // Call the function to import the FEN file and decompile it
-    int result = ImportFileAndDecompile();
-    if (result != 0) {
-        printf("Error during FEN import and decompilation.\n");
-        return result;
-        // Exit if there was an error
+// check if side is in check
+int inCheck(int isWhite){
+    int x,y;
+    findKing(isWhite,&x,&y);
+    return attacked(x,y,!isWhite);
+}
+
+// generate legal moves and score heuristically
+int generateMoves(Move *mlist){
+    int count=0;
+    for(int x=0;x<8;x++)for(int y=0;y<8;y++){
+        char p = board[x][y];
+        if(p==' ' || isUpper(p)!=sideToMove) continue;
+        int color = sideToMove;
+        // pawn moves (no en passant)
+        if(toupper(p)=='P'){
+            int dir = color? -1 : +1;
+            int sx = x+dir;
+            if(sx>=0&&sx<8){
+                if(board[sx][y]==' '){
+                    Move m={x,y,sx,y,' '};
+                    if((sx==0||sx==7)){
+                        char promotions[] = {'q','r','b','n'};
+                        for(int pi=0; pi<4; pi++){
+                            char prom = promotions[pi];
+                            m.promotion = color ? toupper(prom) : prom;
+                            m.score = 900; mlist[count++] = m;
+                        }
+                    } else {
+                        m.score=0; mlist[count++]=m;
+                    }
+                }
+                for(int dy=-1;dy<=1;dy+=2){
+                    int sy=y+dy;
+                    if(sy>=0&&sy<8 && board[sx][sy] != ' ' &&
+                       isUpper(board[sx][sy])!=color){
+                        Move m={x,y,sx,sy,' '};
+                        m.score = abs(pieceVal[(int)board[sx][sy]]);
+                        mlist[count++]=m;
+                    }
+                }
+            }
+        }
+        // knight
+        const int kx[8]={-2,-2,-1,-1,1,1,2,2};
+        const int ky[8]={-1,1,-2,2,-2,2,-1,1};
+        if(toupper(p)=='N'){
+            for(int k=0;k<8;k++){
+                int nx=x+kx[k], ny=y+ky[k];
+                if(nx>=0&&nx<8&&ny>=0&&ny<8 &&
+                   (board[nx][ny]==' ' || isUpper(board[nx][ny])!=color)){
+                    Move m={x,y,nx,ny,' '};
+                    m.score = board[nx][ny]==' ' ? 0 : abs(pieceVal[(int)board[nx][ny]]);
+                    mlist[count++]=m;
+                }
+            }
+        }
+        // bishop/rook/queen same sliding code
+        char pcs[]="BRQ";
+        for(int pi=0;pi<3;pi++){
+            char pc = pcs[pi];
+            if(toupper(p)!=pc) continue;
+            int start = (pi==0?4:(pi==1?0:0));
+            int end   = (pi==0?8:(pi==1?4:8));
+            for(int d=start;d<end;d++){
+                int dx=dirs[d][0], dy=dirs[d][1];
+                for(int nx=x+dx,ny=y+dy;nx>=0&&nx<8&&ny>=0&&ny<8;nx+=dx,ny+=dy){
+                    if(board[nx][ny]==' '){
+                        Move m={x,y,nx,ny,' '};
+                        m.score=0; mlist[count++]=m;
+                    } else {
+                        if(isUpper(board[nx][ny])!=color){
+                            Move m={x,y,nx,ny,' '};
+                            m.score = abs(pieceVal[(int)board[nx][ny]]);
+                            mlist[count++]=m;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        // king basic
+        if(toupper(p)=='K'){
+            int dx, dy;
+            for(dx=-1;dx<=1;dx++)for(dy=-1;dy<=1;dy++){
+                if(dx==0&&dy==0) continue;
+                int nx=x+dx, ny=y+dy;
+                if(nx>=0&&nx<8&&ny>=0&&ny<8 &&
+                   (board[nx][ny]==' '||isUpper(board[nx][ny])!=color)){
+                    Move m={x,y,nx,ny,' '};
+                    m.score = board[nx][ny]==' ' ? 0 :
+                              abs(pieceVal[(int)board[nx][ny]]);
+                    mlist[count++]=m;
+                }
+            }
+        }
     }
-    if (debug == 1) {// Debugging output
-        printf("Debugging output:\n");
-        printf("%d White Rook-1\n", WhiteRooks[1]);
-        printf("%d White Rook-0\n", WhiteRooks[0]);
-        printf("%d White Bishop-0\n", WhiteBishops[0]);
-        printf("%d White Bishop-1\n", WhiteBishops[1]);
-        printf("%d White Knight-0\n", WhiteKnights[0]);
-        printf("%d White King-1\n", WhiteKing[1]);
-        printf("%d White Knight-1\n", WhiteKnights[1]);
-        printf("%d White Queen-1\n", WhiteQueen[1]);
-        printf("%d White King-0\n", WhiteKing[0]);
-        printf("%d White Pawn-1\n", WhitePawns[1]);
-        printf("%d White Pawn-0\n", WhitePawns[0]);
-        printf("%d Black Rook-1\n", BlackRooks[1]);
-        printf("%d Black Rook-0\n", BlackRooks[0]);
-        printf("%d Black Knight-1\n", BlackKnights[1]);
-        printf("%d Black Knight-0\n", BlackKnights[0]);
-        printf("%d Black King-1\n", BlackKing[1]);
-        printf("%d Black King-0\n", BlackKing[0]);
-        printf("%d Black Queen-1\n", BlackQueen[1]);
-        printf("%d Black Queen-0\n", BlackQueen[0]);
-        printf("%d Black Pawn-1\n", BlackPawns[1]);
-        printf("%d Black Pawn-0\n", BlackPawns[0]);
-        printf("%d Black Bishop-0\n", BlackBishops[0]);
-        printf("%d Black Bishop-1\n", BlackBishops[1]);
-        printf("%d White Queen-0\n", WhiteQueen[0]);
-        printf("Whose turn: %s\n", whoseTurn == 0 ? "White" : "Black");
-    }else{
-        return 0;
+    return count;
+}
+
+// sort moves descending by score
+int cmpMove(const void *a, const void *b){
+    return ((Move*)b)->score - ((Move*)a)->score;
+}
+
+// make / undo
+char backup[10000][8][8]; int bcount=0;
+void makeMove(Move m){
+    memcpy(backup[bcount], board, sizeof board);
+    bcount++;
+    board[m.to_x][m.to_y] = board[m.from_x][m.from_y];
+    board[m.from_x][m.from_y] = ' ';
+    if(m.promotion!=' ') board[m.to_x][m.to_y]=m.promotion;
+    sideToMove ^= 1;
+}
+void undoMove(){
+    bcount--;
+    memcpy(board, backup[bcount], sizeof board);
+    sideToMove ^= 1;
+}
+
+// quiescence search
+int quiesce(int alpha,int beta){
+    int stand = evaluate();
+    if(stand >= beta) return beta;
+    if(alpha < stand) alpha = stand;
+
+    Move moves[256]; int mc=generateMoves(moves);
+    qsort(moves, mc, sizeof(Move), cmpMove);
+    for(int i=0;i<mc;i++){
+        Move *m = &moves[i];
+        if(m->score == 0) break;
+        makeMove(*m);
+        if(inCheck(!sideToMove)){ undoMove(); continue; }
+        int val = -quiesce(-beta,-alpha);
+        undoMove();
+        if(val >= beta) return beta;
+        if(val > alpha) alpha = val;
+    }
+    return alpha;
+}
+
+// negamax with alpha-beta
+int negamax(int depth,int alpha,int beta){
+    if(depth==0) return quiesce(alpha, beta);
+
+    Move moves[512]; int mc=generateMoves(moves);
+    qsort(moves, mc, sizeof(Move), cmpMove);
+    if(mc==0){
+        if(inCheck(!sideToMove)) return -MATE_SCORE + (MAX_DEPTH-depth);
+        return 0; // stalemate
     }
 
-    
+    int best = -INF;
+    for(int i=0;i<mc;i++){
+        makeMove(moves[i]);
+        if(inCheck(!sideToMove)){ undoMove(); continue; }
+        int val = -negamax(depth-1, -beta, -alpha);
+        undoMove();
+        if(val >= beta) return val;
+        if(val > best) best = val;
+        if(val > alpha) alpha = val;
+    }
+    return best;
+}
+
+// find best move
+Move findBest(){
+    Move bestm = {0}; int bestv = -INF;
+    Move moves[512]; int mc=generateMoves(moves);
+    qsort(moves, mc, sizeof(Move), cmpMove);
+    for(int i=0;i<mc;i++){
+        makeMove(moves[i]);
+        if(inCheck(!sideToMove)){ undoMove(); continue; }
+        int val = -negamax(MAX_DEPTH-1, -INF, INF);
+        undoMove();
+        if(val > bestv){ bestv=val; bestm = moves[i]; }
+    }
+    return bestm;
+}
+
+void printBoard(){
+    printf("\n");
+    for(int i=0;i<8;i++){
+        printf("%d ", 8-i);
+        for(int j=0;j<8;j++) putchar(board[i][j]), putchar(' ');
+        putchar('\n');
+    }
+    printf("  a b c d e f g h\n");
+}
+
+int main(){
+    initValues();
+    printBoard();
+    Move m = findBest();
+    printf("Best move: %c%d -> %c%d\n",
+        'a'+m.from_y, 8-m.from_x, 'a'+m.to_y, 8-m.to_x);
+    return 0;
 }
