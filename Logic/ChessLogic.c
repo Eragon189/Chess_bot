@@ -283,11 +283,65 @@ void printBoard(){
     printf("\n");
     for(int i=0;i<8;i++){
         printf("%d ", 8-i);
-        for(int j=0;j<8;j++) putchar(board[i][j]), putchar(' ');
+        for(int j=0;j<8;j++) {
+            putchar(board[i][j]);
+            putchar(' ');
+        }
         putchar('\n');
     }
     printf("  a b c d e f g h\n");
+
+    // Build FEN string
+    char fen[128] = {0};
+    char temp[16];
+    int offset = 0;
+
+    for(int i=0;i<8;i++){
+        int empty = 0;
+        for(int j=0;j<8;j++){
+            char c = board[i][j];
+            if(c == ' ') {
+                empty++;
+            } else {
+                if(empty > 0) {
+                    offset += sprintf(fen + offset, "%d", empty);
+                    empty = 0;
+                }
+                fen[offset++] = c;
+            }
+        }
+        if(empty > 0) {
+            offset += sprintf(fen + offset, "%d", empty);
+        }
+        if(i != 7) fen[offset++] = '/';
+    }
+
+    // Side to move
+    offset += sprintf(fen + offset, " %c", sideToMove ? 'w' : 'b');
+
+    // Castling rights (placeholder: none)
+    offset += sprintf(fen + offset, " -");
+
+    // En passant (placeholder)
+    offset += sprintf(fen + offset, " -");
+
+    // Halfmove clock and fullmove number (placeholders)
+    offset += sprintf(fen + offset, " 0 1");
+
+    // Print FEN
+    printf("\nFEN: %s\n", fen);
+
+    // Write FEN to file
+    FILE *f = fopen("fen.txt", "w");
+    if (f) {
+        fprintf(f, "%s\n", fen);
+        fclose(f);
+        printf("FEN written to fen.txt\n");
+    } else {
+        perror("Error writing to file");
+    }
 }
+
 
 int main(){
     initValues();
