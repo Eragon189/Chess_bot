@@ -320,10 +320,10 @@ void printBoard(){
     offset += sprintf(fen + offset, " %c", sideToMove ? 'w' : 'b');
 
     // Castling rights (placeholder: none)
-    offset += sprintf(fen + offset, " -");
+    offset += sprintf(fen + offset, " C");
 
     // En passant (placeholder)
-    offset += sprintf(fen + offset, " -");
+    offset += sprintf(fen + offset, " En");
 
     // Halfmove clock and fullmove number (placeholders)
     offset += sprintf(fen + offset, " 0 1");
