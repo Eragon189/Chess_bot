@@ -279,18 +279,7 @@ Move findBest(){
     return bestm;
 }
 
-void printBoard(){
-    printf("\n");
-    for(int i=0;i<8;i++){
-        printf("%d ", 8-i);
-        for(int j=0;j<8;j++) {
-            putchar(board[i][j]);
-            putchar(' ');
-        }
-        putchar('\n');
-    }
-    printf("  a b c d e f g h\n");
-
+void MakeFen(){
     // Build FEN string
     char fen[128] = {0};
     char temp[16];
@@ -342,12 +331,27 @@ void printBoard(){
     }
 }
 
+void WriteToFile(char *content){
+
+    FILE *file = fopen("fen.txt", "w");  // "w" mode truncates the file if it exists
+    if (file == NULL) {
+        perror("Failed to open file for writing");
+        return;
+    }
+
+    fprintf(file, "%s\n", content);  // Write the FEN string to the file
+    fclose(file);
+
+    printf("FEN written to fen.txt\n");
+}
+
+
 
 int main(){
     initValues();
-    printBoard();
+    MakeFen();
     Move m = findBest();
-    printf("Best move: %c%d -> %c%d\n",
+    printf("\nBest move: %c%d -> %c%d\n",
         'a'+m.from_y, 8-m.from_x, 'a'+m.to_y, 8-m.to_x);
     return 0;
 }
