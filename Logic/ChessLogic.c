@@ -20,8 +20,8 @@ char board[8][8] = {
     {' ',' ',' ',' ',' ',' ',' ',' '},
     {' ',' ',' ',' ',' ',' ',' ',' '},
     {' ',' ',' ',' ',' ',' ',' ',' '},
-    {' ',' ',' ',' ',' ',' ',' ',' '},
-    {'P','P','P','P','P','P','P','P'},
+    {'P',' ',' ',' ',' ',' ',' ',' '},
+    {' ','P','P','P','P','P','P','P'},
     {'R','N','B','Q','K','B','N','R'}
 };
 
@@ -239,7 +239,7 @@ int quiesce(int alpha,int beta){
     }
     return alpha;
 }
-
+// negamax is a variant of minimax
 // negamax with alpha-beta
 int negamax(int depth,int alpha,int beta){
     if(depth==0) return quiesce(alpha, beta);
@@ -265,21 +265,37 @@ int negamax(int depth,int alpha,int beta){
 }
 
 // find best move
-Move findBest(){
-    Move bestm = {0}; int bestv = -INF;
-    Move moves[512]; int mc=generateMoves(moves);
-    qsort(moves, mc, sizeof(Move), cmpMove);
-    for(int i=0;i<mc;i++){
+char *findBest(){
+    Move bestm = {0};
+    int bestv = -INF;
+    Move moves[512];
+    int mc = generateMoves(moves);
+
+    qsort(moves, mc, sizeof(Move), cmpMove); // Optional move ordering
+
+    for (int i = 0; i < mc; i++) {
         makeMove(moves[i]);
-        if(inCheck(!sideToMove)){ undoMove(); continue; }
-        int val = -negamax(MAX_DEPTH-1, -INF, INF);
+        if (inCheck(!sideToMove)) {
+            undoMove();
+            continue;
+        }
+        int val = -negamax(MAX_DEPTH - 1, -INF, INF);
         undoMove();
-        if(val > bestv){ bestv=val; bestm = moves[i]; }
+
+        if (val > bestv) {
+            bestv = val;
+            bestm = moves[i];
+        }
     }
-    return bestm;
+
+    // Apply best move and generate FEN
+    makeMove(bestm);
+    MakeFen();  //Run FEN generation after making the best move
+    undoMove();                 // Clean up state
+
 }
 
-void MakeFen(){
+char MakeFen(){
     // Build FEN string
     char fen[128] = {0};
     char temp[16];
@@ -350,8 +366,8 @@ void WriteToFile(char *content){
 int main(){
     initValues();
     MakeFen();
-    Move m = findBest();
-    printf("\nBest move: %c%d -> %c%d\n",
-        'a'+m.from_y, 8-m.from_x, 'a'+m.to_y, 8-m.to_x);
+    char *fen = findBest();
+    printf("\nBest move: %s\n", fen);
+    free(fen);
     return 0;
 }
