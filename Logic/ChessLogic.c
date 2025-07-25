@@ -290,14 +290,14 @@ char *findBest(){
 
     // Apply best move and generate FEN
     makeMove(bestm);
-    MakeFen();  //Run FEN generation after making the best move
-    undoMove();                 // Clean up state
+    makeFen();  //Run FEN generation after making the best move
+    undoMove();  // Clean up state
 
 }
 
-char MakeFen(){
+int makeFen(){
     // Build FEN string
-    char fen[128] = {0};
+    char fen[256] = {0};
     char temp[16];
     int offset = 0;
 
@@ -333,15 +333,13 @@ char MakeFen(){
     // Halfmove clock and fullmove number (placeholders)
     offset += sprintf(fen + offset, " 0 1");
 
-    // Print FEN
-    printf("\nFEN: %s\n", fen);
 
     // Write FEN to file
     FILE *f = fopen("fen.txt", "w");
     if (f) {
         fprintf(f, "%s\n", fen);
         fclose(f);
-        printf("FEN written to fen.txt\n");
+        return 0;  // Success
     } else {
         perror("Error writing to file");
     }
@@ -357,17 +355,14 @@ void WriteToFile(char *content){
 
     fprintf(file, "%s\n", content);  // Write the FEN string to the file
     fclose(file);
-
-    printf("FEN written to fen.txt\n");
 }
 
 
 
 int main(){
+    printf("Chess Logic\n");
     initValues();
-    MakeFen();
-    char *fen = findBest();
-    printf("\nBest move: %s\n", fen);
-    free(fen);
+    makeFen();
+    findBest();
     return 0;
 }
